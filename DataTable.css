@@ -1,0 +1,262 @@
+body
+{
+}
+.dt
+{
+    font-family: Tahoma,Arial,Helvetica,sans-serif;
+    font-size: 12px;
+	cursor: default;
+	border: 1px solid #AAAAAA;
+    line-height: 150%;
+	background: #FFFFFF;
+	position: relative;
+	overflow: hidden;
+}
+.dt input,
+.dt select,
+.dt button
+{
+	font-size: 12px;
+	font-family: Tahoma,Arial,Helvetica,sans-serif;
+	padding: 0px;
+	margin: 0px;
+	outline: 0px;
+}
+.dt select,
+.dt input
+{
+	background: #FFFFFF;
+	border: 0px;
+}
+.dt table
+{
+	border-collapse: collapse;
+}
+
+.dt-clear
+{
+	clear: both;
+}
+
+.dt-caption
+{
+	text-align: center;
+	padding: 5px;
+	color: #FFFFFF;
+	font-weight: bold;
+	background: #845BA1;
+}
+
+.dt-body
+{
+	overflow: auto;
+}
+.dt-body th
+{
+	padding: 5px;
+}
+.dt-body td
+{
+	cursor: default;
+	padding: 5px;
+	border-right: 1px solid #AAAAAA;
+	border-bottom: 1px solid #AAAAAA;
+}
+.dt-body td input,
+.dt-body td select
+{
+	width: 100%;
+	background: transparent;
+}
+.dt-body tr:hover
+{
+	background: #FAFAFA;
+}
+.dt-body-empty
+{
+	display: none;
+	border-bottom: 1px solid #AAAAAA;
+	padding: 5px;
+	text-align: center;
+}
+.dt-body-row--selected
+{
+	background: transparent;
+}
+.dt-body--focused .dt-body-row--selected
+{
+	background: #FAFAFA;
+}
+
+.dt-head
+{
+	background: #845BA1;
+}
+.dt-head-inner
+{
+	overflow: hidden;
+}
+.dt-head th
+{
+	cursor: pointer;
+	border-right: 1px solid #FFFFFF;
+	font-weight: bold;
+	padding: 5px;
+	line-height: 150%;
+	font-size: 12px;
+	background: #845BA1;
+	color: #FFFFFF;
+}
+.dt-head th:hover
+{
+	text-decoration: underline;
+}
+
+
+.dt-controls
+{
+	background: #FAFAFA;
+}
+.dt-controls-item
+{
+	background: #FFFFFF;
+}
+.dt-controls-item--select,
+.dt-controls-item--button
+{
+	float: left;
+	padding: 5px 10px;
+	margin: 2px;
+	border: 1px solid #AAAAAA;	
+}
+.dt-controls-item--button
+{
+	cursor: pointer;
+	cursor: pointer;
+	float: left;
+	padding: 5px 10px;
+	margin: 2px;
+	border: 1px solid #AAAAAA;
+}
+.dt-controls-item--button:hover
+{
+	border: 1px solid #845BA1;
+	background: #845BA1;
+	color: #FFFFFF;
+}
+.dt-controls-item--button:active
+{
+	border: 1px solid #FAFAFA;
+}
+.dt-controls-item--select select
+{
+	background: transparent;
+}
+.dt-controls-item--disabled
+{
+	cursor: default;
+	color: #AAAAAA;
+	background: transparent;
+}
+.dt-controls-item--disabled:hover
+{
+	color: #AAAAAA;
+	border: 1px solid #AAAAAA;
+	background: transparent;
+}
+.dt-controls-item--disabled select
+{
+	color: #AAAAAA;
+}
+
+.dt-filter
+{
+	border-top: 1px solid #AAAAAA;
+	background: #FFFFFF;
+	padding: 5px;
+	margin: 0px;
+}
+.dt-filter-label
+{
+	float: left;
+	width: 110px;
+}
+.dt-filter-input
+{
+	width: 100%;
+	margin-left: -120px;
+	float: right;
+}
+.dt-filter-input-inner
+{
+	margin-left: 120px;
+}
+.dt-filter input
+{
+	background: #FFFFFF;
+	width: 100%;
+}
+
+
+.dt-pagination
+{
+	border-top: 1px solid #AAAAAA;
+	padding: 5px;
+	background: #FAFAFA;
+}
+.dt-pagination-info
+{
+	float: left;
+}
+.dt-pagination-pages
+{
+	float: right;
+}
+.dt-pagination-page,
+.dt-pagination-page--current
+{
+	padding: 2px 5px;
+}
+.dt-pagination-page
+{
+	cursor: pointer;
+}
+.dt-pagination-page:hover
+{
+	color: #FFFFFF;
+	background: #845BA1;
+}
+.dt-pagination-page--current
+{
+	color: #845BA1;
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.dt-process,
+.dt-process-bg
+{
+	display: none;
+	top: 0px;
+	left: 0px;
+	z-index: 5;	
+	position: absolute;
+}
+.dt-process-bg
+{
+	opacity: 0.1;
+	z-index: 5;
+	background-color: #FAFAFA;
+}
+.dt-process-info
+{
+	font-weight: bold;
+	color: #845BA1;
+	z-index: 6;
+	text-align: center;
+	width: 200px;
+}
+.dt-process-info-indicator
+{
+	font-size: 18px;
+}
