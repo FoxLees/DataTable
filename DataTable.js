@@ -1,15 +1,51 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  *                            Таблица данных
- *                            
+ * 
+ * Таблица управления данными очень похожа на VirtualTreeView. Можно
+ * сказать VirtualTreeView меня вдохновил на создание DataTable. 
+ * И так, если Вы хотите отобразить данные в таблице, с возможностями
+ *   - изменения значений прямо в таблице
+ *   - сортировки по столбцам 
+ *   - отображение нетипичных данных
+ *   - фильтрация строк
+ *   - разбиение на страницы
+ *   - элементы управления с формой
+ * то Вам необходим DataTable.
+ *  
+ * Вот некоторые концепции:
+ *   - пользователь создает таблицу, передав нужные опции и 
+ *     callback-функцию
+ *   - пользователь при неободимости добавляет данные в 
+ *     созданную таблицу. Эти данные должны быть представлены 
+ *     ввидет массива массивов. Формат элементов массива
+ *     не имеет значения и может изменяться по усмотрению
+ *     пользователя.
+ *   - пользователь должен реализовать обработчик событий таблицы.
+ *     Одно из событий оповещает пользователя о необходимости
+ *     отображения данных в ячейке. (см. DataTable.Events.XXXX)
+ *   - пользователь может инициировать изменения данных в ячейке 
+ *     таблицы. Для этого он должен вызвать dt.rows.edit и указать 
+ *     тип поля ввода, которое будет управлят изменением значения 
+ *     DataTable.InputType (см. DataTable.example.js)
+ *   - переход на новую страницу разбиения таблицы осуществляется 
+ *     асинхронно. Данные можно подгружать с сервера по AJAX.
+ *   - пользователь может установить новое разбиение на страницы,
+ *     если разбиение уже было
+ *   - пользователь может обновить название таблицы
+ *   
+ * Зависимости:
+ *   - jquery (v1.8.4)
+ *   - [opt] jquery.numberMask
+ * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * 
  * Параметры:
- *  - options - параметры отображения таблицы
- *  - content - контент, в котором будет отображаться таблица
- *  - callback - функция обработки событий от таблицы данных
+ *   - $content - контент, в котором будет отображаться таблица
+ *   - options  - параметры отображения таблицы
+ *   - callback - функция обработки событий от таблицы данных
  *  
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *   
@@ -24,7 +60,7 @@
  *     // Информационная строка об остутствии данных
  *     empty: 'Данных нет',
  *     // Используемая локализация
- *     language: DataTable.Language.XXX,
+ *     language: DataTable.Language.XXXX,
  *     // Признак фильтра поиска по таблице
  *     filter: true|false,
  *     
@@ -62,8 +98,7 @@
  *         data: [{
  *             // Название столбца
  *             caption: '',
- *             // Ширина столбца в пикселях или в относительных 
- *             // единицах (< 1 и > 0)
+ *             // Ширина столбца в пикселях
  *     	       width: xx,
  *             // Выравнивание элементов в столбце
  *             align: "left"|"right"|"center" (по умолчанию left),
@@ -79,96 +114,27 @@
  *         // Общее количество страниц
  *         count: 10
  *     }
+ * }
+ *   
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * 
+ * Формат функции callback: function(event) { }
+ *   
+ *   Параметр event может быть следующей структуры:
+ *   
+ *   {
+ *       type: DataTable.Events.XXXX,
+ *       // ... 
+ *       // остальные поля зависят от типа DataTable.Events
+ *       // (см. DataTable.Events)
  *   }
  *   
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *   Структура параметра data
- *       data: [
- *         {
- *           // просто текст
- *           type: GLOBAL.VAR_TYPE.STRING,
- *           // содержимое ячейки
- *           value: '',
- *           // новое значение
- *           // до изменения == null
- *           newvalue: '',
- *           // картинка слева от текста
- *       	 img: '',
- *       	 // доступность текста для изменения
- *           // (по умолчанию false)
- *           // при нажатии на строку предоставляется возможность 
- *           // для изменения этого поля
- *       	 change: ture|false
- *         }, {
- *           // целое число
- *           type: GLOBAL.VAR_TYPE.INTEGER,
- *           // максимальное значение
- *           max_value: '',
- *           // минимальное значение
- *           min_value: '',
- *       	 // доступность текста для изменения
- *           // (по умолчанию false)
- *           // при нажатии на строку предоставляется возможность 
- *           // для изменения этого поля
- *       	 change: ture|false
- *         }, {
- *           // просто число
- *           type: GLOBAL.VAR_TYPE.FLOAT,
- *           // Метод трансформации
- *           method: GLOBAL.TRANSFORM.XXX,
- *           // максимальное значение
- *           max_value: '',
- *           // минимальное значение
- *           min_value: '',
- *       	 // доступность текста для изменения
- *           // (по умолчанию false)
- *           // при нажатии на строку предоставляется возможность 
- *           // для изменения этого поля
- *       	 change: ture|false
- *           // единица измерения (если нет трансформации)
- *           measure: "измерение",
- *           // единица измерения (если есть трансформация)
- *           measure: ["для первичного значения", "для вторичного значения"],
- *           // Коэфициент трансформации (если есть трансформация)
- *           ratio: 0.1,
- *           // число знаков после запятой (если нет трансформации)
- *           decPlaces: <число знаков после запятой>
- *         }, {
- *         	 // Числовой тип с двумя значениями (трансформированным и не трансформированным)
- *           type: GLOBAL.VAR_TYPE.COMPLEX,
- *           // Метод трансформации
- *           method: GLOBAL.TRANSFORM.XXX,
- *       	 // доступность текста для изменения
- *           // (по умолчанию false)
- *           // при нажатии на строку предоставляется возможность 
- *           // для изменения этого поля
- *       	 change: ture|false
- *           // единица измерения (если нет трансформации)
- *           measure: "измерение",
- *           // единица измерения (если есть трансформация)
- *           measure: ["для первичного значения", "для вторичного значения"],
- *           // Коэфициент трансформации (если есть трансформация)
- *           ratio: 0.1,
- *           // число знаков после запятой (если нет трансформации)
- *           decPlaces: <число знаков после запятой>,
- *           // число знаков после запятой в значении угла
- *           angleDecPlaces: <double>
- *         }, {
- *           // перечислденный тип
- *           type: GLOBAL.VAR_TYPE.ENUM,
- *           // возможные значения
- *           values: ['value1', 'value2', ... ],
- *           // индекс выбранного значения 
- *           value: xx,
- *           // новое значение
- *           // до изменения == null
- *           newvalue: xx,
- *       	 // доступность текста для изменения
- *           // (по умолчанию false)
- *           // при нажатии на строку предоставляется возможность 
- *           // для изменения этого поля
- *       	 change: ture|false
- *         }]
+ * 
+ * ВОЗМОЖНЫЕ ПРОБЛЕМЫ:
+ *   - не проверялось на утечки памяти. Есть мнение, что утечка может
+ *     возникнуть при многократном создании объектов DataTable.
+ *   
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
@@ -176,22 +142,33 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Конструктор таблицы данных
 function DataTable($content, options, callback) {
+	// Локализация таблицы
+	var __localization;
+	switch (options.language) {
+		case DataTable.Language.ENGLISH:
+			__localization = DataTable.Localization.english;
+			break;
+			
+		default:
+			__localization = DataTable.Localization.russian;
+	}
+	
 	// Проверить имя таблицы
 	if (/\W+/i.test(options.name))
-		throw 'TODO';
-	// Проверить наличие элементов с таким именем как id
+		throw __localization.errors.wrongTableName;
+	// Проверить наличие элементов с таким id именем
 	if (document.getElementById(options.name))
-		throw 'TODO';
+		throw __localization.errors.dubTableName;
 	
 	// Указатель на самого себя
 	var self = this;
 	
 	// Сохранить ссылку на родительский контент
-	this._$content = $content;
+	this.__$content = $content;
 	// Сохранить параметры таблицы
-	this._options = options;
+	this.__options = options;
 	// Сохранить ссылку на функцию обработки прерываний
-	this._callback = callback;
+	this.__callback = callback;
 	
 	// Данные таблицы
 	this.data = [];
@@ -202,7 +179,17 @@ function DataTable($content, options, callback) {
 	$content.attr('id', options.name);
 	
 	// Добавить таблицу на страницу
-	$content.html(DataTable.Builder.htmlTable(options));
+	$content.html(DataTable.Builder.htmlTable(options, __localization));
+	
+	
+	
+	// Настройка размеров некоторых полей
+	(function() {
+		// Область фильтрации. Установить ширину заголовка
+		var w = $content.find('.dt-filter .dt-filter-label').width() + 5;
+		$content.find('.dt-filter .dt-filter-input').css('margin-left', -w);
+		$content.find('.dt-filter .dt-filter-input-inner').css('margin-left', w);
+	})();
 
 	
 	
@@ -292,14 +279,14 @@ function DataTable($content, options, callback) {
 	
 	// Функция вызова обработчика событий таблицы
 	function eventCallback(event) {
-		return self._callback.call(self, event);
+		return self.__callback.call(self, event);
 	};
 	
 	
 	
 	//--------------------------------------------------------------------
 	// Индикатор выполнения процессов
-	var process = (function() {
+	this.process = (function() {
 		// Состояние активности индикатора
 		var timer = undefined;
 		var indicator;
@@ -407,7 +394,7 @@ function DataTable($content, options, callback) {
 		function create() {
 			$content.find('.dt-body tbody').on('click', 'td', function() {
 				var $td = $(this);
-				var rowIndex = _indexById($td.parent().attr('id'));
+				var rowIndex = __indexById($td.parent().attr('id'));
 				var colIndex = $td.parent().find('td').index($td);
 				
 				// Вызвать обработчик пользователя о нажатии на ячейку
@@ -430,7 +417,7 @@ function DataTable($content, options, callback) {
 				// Отправить пользовательский обработчик
 				eventCallback({
 					type: DataTable.Events.ROW_CLICK,
-					rowIndex: _indexById($tr)
+					rowIndex: __indexById($tr)
 				});
 			});
 			
@@ -445,12 +432,12 @@ function DataTable($content, options, callback) {
 		};
 		
 		// Получить идентификатор строки по ее индексу
-		function _idByIndex(index) {
-			return 'dt-' + self._options.name + '-row-' + index;
+		function __idByIndex(index) {
+			return 'dt-' + self.__options.name + '-row-' + index;
 		};
 		
 		// Получить индекс строки по ее идентификатору
-		function _indexById(id) {
+		function __indexById(id) {
 			var exec = reId.exec(id);
 			if (exec)
 				return exec[1] * 1;
@@ -466,7 +453,7 @@ function DataTable($content, options, callback) {
 				var row = rows[r];
 				// Создать строка таблицы DOM
 				var tr = document.createElement('tr');
-				tr.setAttribute('id', _idByIndex(rowCount + r));
+				tr.setAttribute('id', __idByIndex(rowCount + r));
 				// Описание строки таблицы
 				var rowData = [];
 				
@@ -475,7 +462,7 @@ function DataTable($content, options, callback) {
 					var td = document.createElement('td');
 					
 					// Установить выравнивание
-					var align = self._options.columns[c].align;
+					var align = self.__options.columns[c].align;
 					if (align)
 						td.style.textAlign = align;
 					
@@ -502,10 +489,10 @@ function DataTable($content, options, callback) {
 		// Удалить строку из таблицы
 		function remove(rowIndex) {
 			// Удалить строку таблицы из DOM
-			$content.find('.dt-body tbody').find('#' + _idByIndex(rowIndex)).remove();
+			$content.find('.dt-body tbody').find('#' + __idByIndex(rowIndex)).remove();
 			// Переиндексировать атрибуты
 			for (var i = rowIndex + 1; i < self.data.length; i++)
-				$(document.getElementById(_idByIndex(i))).attr('id', _idByIndex(i - 1));
+				$(document.getElementById(__idByIndex(i))).attr('id', __idByIndex(i - 1));
 			// Удалить описание строки
 			self.data.splice(rowIndex, 1);
 		};
@@ -521,18 +508,18 @@ function DataTable($content, options, callback) {
 		// Установить/Получить признак выделения строки таблицы
 		function selected(rowIndex, value) {
 			if (rowIndex === undefined) {
-				return _indexById($content.find('.dt-body .dt-body-row--selected').attr('id'));
+				return __indexById($content.find('.dt-body .dt-body-row--selected').attr('id'));
 			} else if (value === undefined) {
-				return $content.find('.dt-body #' + _idByIndex(rowIndex)).hasClass('dt-body-row--selected');
+				return $content.find('.dt-body #' + __idByIndex(rowIndex)).hasClass('dt-body-row--selected');
 			} else if (rowIndex >= 0) {
-				$content.find('.dt-body #' + _idByIndex(rowIndex)).click();
+				$content.find('.dt-body #' + __idByIndex(rowIndex)).click();
 			}
 		};
 		
 		// Отобразить поле ввода в ячейке
 		function edit(rowIndex, colIndex, data) {
 			// Найти ячейку для отображения полей ввода
-			var $td = $content.find('.dt-body #' + _idByIndex(rowIndex) + ' td:eq(' + colIndex + ')');
+			var $td = $content.find('.dt-body #' + __idByIndex(rowIndex) + ' td:eq(' + colIndex + ')');
 			// Поле ввода и функция для полчения значения из этого поля
 			var $input, getValue;
 			switch (data.type) {
@@ -715,7 +702,7 @@ function DataTable($content, options, callback) {
 		function update(columns) {
 			function updateField(rowIndex, colIndex) {
 				// Запросить HTML-код для отображения значения
-				$content.find('.dt-body #' + _idByIndex(rowIndex) + ' td:eq(' + colIndex + ')')
+				$content.find('.dt-body #' + __idByIndex(rowIndex) + ' td:eq(' + colIndex + ')')
 					.html(eventCallback({
 						type: DataTable.Events.FIELD_SHOW,
 						data: self.data[rowIndex][colIndex]
@@ -742,16 +729,74 @@ function DataTable($content, options, callback) {
 	//--------------------------------------------------------------------
 	// Объект управления столбцами таблицы
 	this.columns = (function() {
+		// Направлени сортировки
+		var SortDirection = {
+			NONE: 0,
+			ASC:  1,
+			DESC: 2
+		};
+		
 		// Конструктор
 		function create() {
-			return {
-				sort:  sort
-			};
+			// Навесить обработчик сортировки
+			$content.find('.dt-head').on('click', 'th.dt-head-col-sortable', function() {
+				// Столбец сортировки
+				var $th = $(this);
+				
+				// Направление сортировки
+				var direction = ($th.find('input').val() * 1 + 1) % 3;
+				
+				// Сортировка
+				__sort($th.parent().find('th').index($th), direction);
+				
+				// Обновить значение направления
+				$th.find('input').val(direction);
+
+				// Убрать индикатор направлени сортировки
+				$content.find('.dt-head .dt-head-col-sort').html('&#9679;');
+				
+				// Обновить индикатор направления сортировки
+				switch (direction) {
+					case SortDirection.ASC:
+						$th.find('.dt-head-col-sort').html('&#9650;');
+						break;
+						
+					case SortDirection.DESC:
+						$th.find('.dt-head-col-sort').html('&#9660;');
+						break;
+				}
+			});
 		};
 
 		// Установить/Получить сортировку столбца
-		function sort(c, value) {
-			
+		function __sort(colIndex, direction) {
+			var temp, rowsCount = $content.find('.dt-body tr').length;
+			for(var i = 0; i < rowsCount - 1; i++)
+				for(var j = 0; j < rowsCount - i - 1; j++) {
+					var $rowTop = $content.find('.dt-body tr:eq(' + j + ')');
+					var $rowBottom = $rowTop.next();
+					
+					switch (direction) {
+						case SortDirection.ASC:
+							// Портировать по нужному столбцу
+							if($rowTop.find('td:eq(' + colIndex + ')').text() > 
+								$rowBottom.find('td:eq(' + colIndex + ')').text())
+								$rowBottom.after($rowTop);
+							break;
+							
+						case SortDirection.DESC:
+							// Портировать по нужному столбцу
+							if($rowTop.find('td:eq(' + colIndex + ')').text() <
+								$rowBottom.find('td:eq(' + colIndex + ')').text())
+								$rowBottom.after($rowTop);
+							break;
+
+						default:
+							// Сортировать по идентификатору строки
+							if($rowTop.prop('id') > $rowBottom.attr('id'))
+								$rowBottom.after($rowTop);
+					}
+				}
 		};
 		
 		// Инициализация
@@ -827,7 +872,7 @@ function DataTable($content, options, callback) {
 				var page = $page.find('input').val() * 1;
 				
 				// Запустить индикацию процесса
-				process.start('TODO Page load');
+				self.process.start(__localization.view.process.load);
 				
 				// Вызвать пользовательский обработчик
 				eventCallback({
@@ -841,12 +886,13 @@ function DataTable($content, options, callback) {
 						self.rows.add(data);
 						
 						// Обновить значение текущей страницы
-						self._options.pagination.page = page;
+						self.__options.pagination.page = page;
 						// Перерисовать область навигации по страницам
-						$content.find('.dt-pagination').html(DataTable.Builder.htmlPagination(self._options.pagination));
+						$content.find('.dt-pagination').html(DataTable.Builder.htmlPagination(
+							self.__options.pagination, __localization));
 						
 						// Остановить индикацию процесса
-						process.stop();
+						self.process.stop();
 					}
 				});
 			});
@@ -858,9 +904,10 @@ function DataTable($content, options, callback) {
 		// Установить новую разбивку на страницы
 		function paginate(pagination) {
 			// Обновить разбивку на страницы
-			self._options.pagination = pagination;
+			self.__options.pagination = pagination;
 			// Перерисовать область навигации по страницам
-			$content.find('.dt-pagination').html(DataTable.Builder.htmlPagination(pagination));
+			$content.find('.dt-pagination').html(DataTable.Builder.htmlPagination(
+				pagination, __localization));
 		};
 		
 		// Инициализация
@@ -881,14 +928,14 @@ function DataTable($content, options, callback) {
 			
 			// Установить обработчик ввода текста в поле фильтрации
 			$content.find('.dt-filter input').on('input', DataTable.debounce(function() {
-				_search($(this).val());
+				__search($(this).val());
 			}, 500));
 			
 			return {};
 		};
 		
 		// Функция фильтрации данных в таблице
-		function _search(filter) {
+		function __search(filter) {
 			var $trList = $content.find('.dt-body tr');
 			if ((filter == '') || (filter == undefined)) {
 				$trList.show();
@@ -907,7 +954,40 @@ function DataTable($content, options, callback) {
 						$tr.hide();
 				});
 			}
+			
+			// Скрыть/отобразить сообщение о пустоте таблицы
+			if ($content.find('.dt-body tr:visible').length === 0)
+				$content.find('.dt-body-empty').show();
+			else
+				$content.find('.dt-body-empty').hide();
 		};
+		
+		// Инициализация
+		return create();
+	})();
+	
+	
+	
+	//--------------------------------------------------------------------
+	// Объект управления заголовком таблицы
+	this.caption = (function() {
+		// Конструктор
+		function create() {
+			return {
+				set: set,
+				get: get
+			};
+		}
+		
+		// Установка заголовка
+		function set(caption) {
+			$content.find('.dt-caption').html(caption);
+		}
+		
+		// Получение заголовка
+		function get() {
+			return $content.find('.dt-caption').html();
+		}
 		
 		// Инициализация
 		return create();
@@ -1003,7 +1083,11 @@ DataTable.Events = {
 	 */
 	FIELD_CLICK: 0,
 	/*
-	 * Закрепление данных в поле таблицы
+	 * Закрепление данных в поле таблицы. Если поле ввода в таблице
+	 * потеряло фокус, или были нажаты кнопки Enter или Esc. В случае нажатия
+	 * Esc value будет undefined, что сигнализирует об отмене операции закрепления. 
+	 * В противном случае пользователь должен сохранить значение, указанное
+	 * в value для данной ячейки таблицы
 	 * {
 	 *   type:  DataTable.Events.FIELD_ACCEPT,
 	 *   data:  data[rowIndex][colIndex],
@@ -1012,7 +1096,11 @@ DataTable.Events = {
 	 */
 	FIELD_ACCEPT: 1,
 	/*
-	 * Событие отображения поля таблицы
+	 * Событие отображения поля таблицы. По сути, мы имеем дело с аналогией
+	 * VirtualTreeView, где таблица хранит лишь указатели на данные.
+	 * Пользователь сам отвечает за их строковое представление. Обработчик
+	 * события этого типа должен вернуть строковое представление значения
+	 * для таблицы
 	 * {
 	 *   type: DataTable.Events.FIELD_SHOW,
 	 *   data: data[rowIndex][colIndex]
@@ -1020,7 +1108,7 @@ DataTable.Events = {
 	 */
 	FIELD_SHOW: 2,
 	/*
-	 * Событие отображения поля таблицы
+	 * Нажатие на строку таблицы
 	 * {
 	 *   type: DataTable.Events.ROW_CLICK,
 	 *   rowIndex: 3
@@ -1028,23 +1116,27 @@ DataTable.Events = {
 	 */
 	ROW_CLICK: 3,
 	/*
-	 * Нажатие на элмент управления Button
+	 * Нажатие на элмент управления Button. В name указано имя ЭУ,
+	 * переданное в options при создании таблицы
 	 * {
 	 *   type: DataTable.Events.BUTTON_CLICK,
-	 *   rowIndex: 3
+	 *   name: ''
 	 * }
 	 */
 	BUTTON_CLICK: 4,
 	/*
-	 * Изменение значения в SELECT
+	 * Изменение значения в SELECT. В name указано имя ЭУ,
+	 * переданное в options при создании таблицы
 	 * {
 	 *   type: DataTable.Events.SELECT_CHANGE,
-	 *   rowIndex: 3
+	 *   name: ''
 	 * }
 	 */
 	SELECT_CHANGE: 5,
 	/*
-	 * Навигация по страницам
+	 * Навигация по страницам. При нажатии на кнопку навигации, происходит
+	 * это событие. Пользователь должен подготовить данные для отображения в таблице
+	 * и добавить, вызвав функцию callback
 	 * {
 	 *   type: DataTable.Events.PAGE_CHANGE,
 	 *   page: 1,
@@ -1070,32 +1162,87 @@ DataTable.Language = {
 DataTable.Localization = {};
 //  - английский язык
 DataTable.Localization.english = {
+		view: {
+			process: {
+				load: 'Download'
+			},
+			filter: {
+				title: 'Filter'
+			},
+			pagination: {
+				page: 'Page',
+				from: 'from',
+				toFirst: 'To first page',
+				toLast: 'To last page',
+				toPrev: 'To previous page',
+				toNext: 'To next page'
+			},
+			body: {
+				empty: 'Records not found'
+			}
+		},
+		message: {
+
+		},
+		errors: {
+			wrongTableName:  'Wrong table name',
+			dubTableName:    'Table name already exist',
+			wrongPagination: 'Wrong pagination page'		
+		}
 };
 //  - русский язык
 DataTable.Localization.russian = {
+	view: {
+		process: {
+			load: 'Загрузка'
+		},
+		filter: {
+			title: 'Поиск'
+		},
+		pagination: {
+			page: 'Страница',
+			from: 'из',
+			toFirst: 'На первую страницу',
+			toLast: 'На последнюю страницу',
+			toPrev: 'На предыдущую страницу',
+			toNext: 'На следующую страницу'
+		},
+		body: {
+			empty: 'Записи не обнаружены'
+		}
+	},
+	message: {
+
+	},
+	errors: {
+		wrongTableName:  'Некорректное имя для таблицы',
+		dubTableName:    'Дублирование имени таблицы',
+		wrongPagination: 'Некорректное разбиение на страницы'		
+	}
 };
 
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Строитель таблицы
-DataTable.Builder = function() {
-	this._buffer = [];
-	this._index = 0;
+DataTable.Builder = function(localization) {
+	this.__buffer = [];
+	this.__index = 0;
+	this.__localization = localization;
 };
 
 // Добавление подстроки
 DataTable.Builder.prototype.append =  function(text) 
 {
-	this._buffer[this._index] = text;
-	this._index++;
+	this.__buffer[this.__index] = text;
+	this.__index++;
 	return this;
 };
 
 // Преобразование к строке
 DataTable.Builder.prototype.toString = function() 
 {
-	return this._buffer.join('');
+	return this.__buffer.join('');
 };
 
 // Добавить заголовок таблицы
@@ -1157,7 +1304,7 @@ DataTable.Builder.prototype.appendFilter = function(filter) {
 	if (filter) {
 		this.append('<div class="dt-filter">')
 				.append('<div class="dt-filter-label">')
-					.append('TODO Поиск по:')
+					.append(this.__localization.view.filter.title + ':')
 				.append('</div>')
 				
 				.append('<div class="dt-filter-input">')
@@ -1176,8 +1323,8 @@ DataTable.Builder.prototype.appendFilter = function(filter) {
 DataTable.Builder.prototype.appendPagination = function(pagination, onlyContent) {
 	if (pagination) {
 		if ((pagination.page > pagination.count) || (pagination.page <= 0))
-			throw 'TODO';
-		
+			throw this.__localization.errors.wrongPagination;
+
 		var start = pagination.page - 3;
 		var end = pagination.page + 3;
 		if (start <= 0) {
@@ -1195,19 +1342,22 @@ DataTable.Builder.prototype.appendPagination = function(pagination, onlyContent)
 			this.append('<div class="dt-pagination">');
 		
 		this.append('<div class="dt-pagination-info">');
-			this.append('TODO Показана страница ' + pagination.page + ' из ' + pagination.count);
+			this.append(this.__localization.view.pagination.page + ' ' + 
+				pagination.page + ' ' + this.__localization.view.pagination.from + ' ' + pagination.count);
 		this.append('</div>');
 		
 		this.append('<div class="dt-pagination-pages">');
 		
 			if (pagination.page > 1) {
 				// К первой странице
-				this.append('<span class="dt-pagination-page dt-pagination-page--first"><<');
+				this.append('<span class="dt-pagination-page dt-pagination-page--first" title="' + 
+						this.__localization.view.pagination.toFirst + '"><<');
 					this.append('<input type="hidden" value="1">');
 				this.append('</span>');
 				
 				// К предидущей странице
-				this.append('<span class="dt-pagination-page dt-pagination-page--prev"><');
+				this.append('<span class="dt-pagination-page dt-pagination-page--prev" title="' + 
+						this.__localization.view.pagination.toPrev + '"><');
 					this.append('<input type="hidden" value="' + (pagination.page - 1) + '">');
 				this.append('</span>');
 			}
@@ -1230,12 +1380,14 @@ DataTable.Builder.prototype.appendPagination = function(pagination, onlyContent)
 			
 			if (pagination.count > pagination.page) {
 				// К следующей странице
-				this.append('<span class="dt-pagination-page dt-pagination-page--next">>');
+				this.append('<span class="dt-pagination-page dt-pagination-page--next" title="' + 
+						this.__localization.view.pagination.toNext + '">>');
 					this.append('<input type="hidden" value="' + (pagination.page + 1) + '">');
 				this.append('</span>');
 				
 				// К последней странице
-				this.append('<span class="dt-pagination-page dt-pagination-page--last">>>');
+				this.append('<span class="dt-pagination-page dt-pagination-page--last" title="' + 
+						this.__localization.view.pagination.toLast + '">>>');
 					this.append('<input type="hidden" value="' + pagination.count + '">');
 				this.append('</span>');
 			}
@@ -1269,8 +1421,17 @@ DataTable.Builder.prototype.appendHead = function(columns) {
     this.append('</colgroup>');
     
 	this.append('<thead><tr>');
-	for (var c = 0; c < columns.length; c++)
-		this.append('<th>' + columns[c].caption + '</th>');
+	for (var c = 0; c < columns.length; c++) {
+		this.append('<th' + (columns[c].sortable ? ' class="dt-head-col-sortable"' : '') + '>');
+			if (columns[c].sortable)
+				this.append('<input type="hidden" val="' + 0 + '">');
+			this.append('<span class="dt-head-col-caption">');
+				this.append(columns[c].caption);
+			this.append('</span>');
+			if (columns[c].sortable)
+				this.append('<div class="dt-head-col-sort">&#9679;</div>');
+		this.append('</th>');
+	}
 	this.append('</tr></thead>');
 	
 	this.append('</table></div></div>');
@@ -1287,7 +1448,7 @@ DataTable.Builder.prototype.appendBody = function(columns) {
     this.append('</colgroup>');
 	
     this.append('<tbody></tbody>');
-	this.append('<div class="dt-body-empty">' + 'TODO Empty' + '</div>');
+	this.append('<div class="dt-body-empty">' + this.__localization.view.body.empty + '</div>');
 	
 	this.append('</table></div>');
 	return this;
@@ -1309,8 +1470,8 @@ DataTable.Builder.prototype.appendClear = function() {
 };
 
 // Получить html-код таблицы
-DataTable.Builder.htmlTable = function(options) {
-	var builder = new DataTable.Builder();
+DataTable.Builder.htmlTable = function(options, localization) {
+	var builder = new DataTable.Builder(localization);
 	
 	// Заголовок таблицы
 	builder.appendCaption(options.caption);
@@ -1337,8 +1498,8 @@ DataTable.Builder.htmlTable = function(options) {
 };
 
 // Получить html-код таблицы
-DataTable.Builder.htmlPagination = function(pagination) {
-	var builder = new DataTable.Builder();
+DataTable.Builder.htmlPagination = function(pagination, localization) {
+	var builder = new DataTable.Builder(localization);
 	
 	// Область навигации по страницам
 	builder.appendPagination(pagination, true);

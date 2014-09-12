@@ -98,7 +98,6 @@ body
 }
 .dt-head th
 {
-	cursor: pointer;
 	border-right: 1px solid #FFFFFF;
 	font-weight: bold;
 	padding: 5px;
@@ -109,9 +108,16 @@ body
 }
 .dt-head th:hover
 {
-	text-decoration: underline;
 }
-
+.dt-head-col-sort
+{
+	float: right;
+	width: 10px;
+}
+.dt-head-col-sortable
+{
+	cursor: pointer;
+}
 
 .dt-controls
 {
@@ -179,7 +185,6 @@ body
 .dt-filter-label
 {
 	float: left;
-	width: 110px;
 }
 .dt-filter-input
 {

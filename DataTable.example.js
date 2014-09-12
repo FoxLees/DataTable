@@ -1,13 +1,10 @@
 // Пример исползования таблицы
 DataTable.example = function() {
-
 	// Добавить область для таблицы
-	var contentElement = document.createElement('div');
-	contentElement.setAttribute('id', 'table');
-	document.getElementsByTagName('body')[0].appendChild(contentElement);
+	$('body').html('<div class="my-table"></div>');
 	
 	// Установка размеров окна
-	function onResize() { $('#table').height($(window).height() - 2); }
+	function onResize() { $('.my-table').height($(window).height() - 2);}
 	$(window).resize(onResize);
 	onResize();
 	
@@ -22,19 +19,9 @@ DataTable.example = function() {
 	
 	// Данные для таблицы
 	var tableData = [
-	    [{
-			type     : DataType.STRING,					
-			value    : "Sample string",
-			editable : false
-		}, {
-			type     : DataType.STRING,					
-			value    : "Value#1",
-			editable : true
-		}], 
-		
 		[{
 			type   : DataType.STRING,					
-			value  : "Sample integer",
+			value  : "1Sample integer",
 			editable : false
 		}, {
 			type     : DataType.INTEGER,					
@@ -44,9 +31,19 @@ DataTable.example = function() {
 			editable : true
 		}],
 		
+	    [{
+			type     : DataType.STRING,					
+			value    : "2Sample string",
+			editable : false
+		}, {
+			type     : DataType.STRING,					
+			value    : "Value#1",
+			editable : true
+		}],
+		
 		[{
 			type     : DataType.STRING,					
-			value    : "Sample float",
+			value    : "4Sample float",
 			editable : false
 		}, {
 			type      : DataType.FLOAT,					
@@ -60,7 +57,7 @@ DataTable.example = function() {
 		
 		[{
 			type   : DataType.STRING,					
-			value  : "Sample float (transform)",
+			value  : "3Sample float (transform)",
 			editable : false
 		}, {
 			type      : DataType.FLOAT,					
@@ -75,7 +72,7 @@ DataTable.example = function() {
 		
 		[{
 			type     : DataType.STRING,					
-			value    : "Sample enum",
+			value    : "6Sample enum",
 			editable : false
 		}, {
 			type      : DataType.ENUM,					
@@ -86,7 +83,7 @@ DataTable.example = function() {
 		
 		[{
 			type     : DataType.STRING,					
-			value    : "Sample boolean",
+			value    : "5Sample boolean",
 			editable : false
 		}, {
 			type      : DataType.BOOLEAN,					
@@ -233,11 +230,20 @@ DataTable.example = function() {
 	
 	function onButtonClick(event) {
 		var dt = this;
-		dt.controls.enabled(event.name, false);
-		setTimeout(function() {
-			dt.controls.enabled(event.name, true);
-		}, 3000);
+		switch (event.name) {
+			case 'name_1':
+				dt.controls.enabled(event.name, false);
+				setTimeout(function() {
+					dt.controls.enabled(event.name, true);
+				}, 3000);
+				break;
+				
+			case 'name_3':
+				dt.caption.set('New ' + dt.caption.get());
+				break;
+		}
 	}
+
 	
 	function onSelectChange(event) {
 		var dt = this;
@@ -250,7 +256,7 @@ DataTable.example = function() {
 	
 	
 	// Создание таблицы данных
-	var dt = new DataTable($('#table'), {
+	var dt = new DataTable($('.my-table'), {
 		name:     'table1',
 		caption:  'Заголовок',
 		empty:    '',
@@ -281,6 +287,17 @@ DataTable.example = function() {
 			items: ['Value#1', 'Value#2', 'Value#3'],
 			// Значение 
 			value: 0
+		}, {
+			// Тип элемента панели "Кнопка"
+			type: DataTable.ControlType.BUTTON,
+			// Уникальное название контрола
+			name: 'name_3',
+			// Текст на кнопке
+			caption: 'Сменить заголовок',
+			// Всплывающая подсказка
+			hint: 'Текст подсказки',
+			// Признак активности элемента
+			enabled: true
 		}],
 		
 		columns: [{
@@ -292,7 +309,7 @@ DataTable.example = function() {
 			caption: 'Value',
 			width:    400,
 			align:    'center',
-			sortable: true
+			sortable: false
 		}],
 		
 		pagination: {
