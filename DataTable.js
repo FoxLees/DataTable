@@ -38,6 +38,7 @@
  *   - jquery (v1.8.4)
  *   - [opt] jquery.numberMask
  * 
+ *                                  Copyright 2012-2014, ООО НПП "ЭКРА"
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -155,10 +156,10 @@ function DataTable($content, options, callback) {
 	
 	// Проверить имя таблицы
 	if (/\W+/i.test(options.name))
-		throw __localization.errors.wrongTableName;
+		throw new Error(__localization.errors.wrongTableName);
 	// Проверить наличие элементов с таким id именем
 	if (document.getElementById(options.name))
-		throw __localization.errors.dubTableName;
+		throw new Error(__localization.errors.dubTableName);
 	
 	// Указатель на самого себя
 	var self = this;
@@ -1323,7 +1324,7 @@ DataTable.Builder.prototype.appendFilter = function(filter) {
 DataTable.Builder.prototype.appendPagination = function(pagination, onlyContent) {
 	if (pagination) {
 		if ((pagination.page > pagination.count) || (pagination.page <= 0))
-			throw this.__localization.errors.wrongPagination;
+			throw new Error(this.__localization.errors.wrongPagination);
 
 		var start = pagination.page - 3;
 		var end = pagination.page + 3;
