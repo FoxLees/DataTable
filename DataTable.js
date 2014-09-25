@@ -251,7 +251,7 @@ function DataTable($content, options, callback) {
 		});
 		
 		// Переход вверх и вниз
-		$(document).on('keypress', function(e) {
+		$(document).on('keydown', function(e) {
 			if (focused) {
 				var $tr = $content.find('.dt-body .dt-body-row--selected');
 				if (($tr.length == 0) || !$tr.is(':visible')) {
@@ -675,7 +675,7 @@ function DataTable($content, options, callback) {
 				// Обработчик потери фокуса
 				.blur(function() { accept(); })
 				// Нажатие Enter
-				.keypress(function(e) {
+				.keydown(function(e) {
 					switch (e.keyCode) {
 						case 13:
 							accept();
